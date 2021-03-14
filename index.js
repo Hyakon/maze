@@ -57,7 +57,42 @@ class Maze {
   initMaze = () => {
     this.generateMaze();
     console.log(this.maze);
-    this.searchNextCell({ x: 0, y: 0 });
+    // this.searchNextCell({ x: 0, y: 0 });
+    let a = this.solveMaze({ x: 0, y: 0 });
+    console.log(this.last);
+    this.finishMaze();
+    this.displayMaze();
+  };
+
+  finishMaze = () => {
+    const { x, y } = this.last;
+    console.log(this.last, x, y, this.height, this.width);
+    let value = parseInt(this.maze[y][x], 2);
+    if (this.last.x === 0)
+      return (this.maze[y][x] = dec2bin(value & parseInt(LEFT, 2)).padStart(
+        4,
+        "0"
+      ));
+    if (this.last.y === 0)
+      return (this.maze[y][x] = dec2bin(value & parseInt(TOP, 2)).padStart(
+        4,
+        "0"
+      ));
+    if (this.last.x === this.width - 1) {
+      console.log("right", x, y);
+      return (this.maze[y][x] = dec2bin(value & parseInt(RIGHT, 2)).padStart(
+        4,
+        "0"
+      ));
+    }
+    if (this.last.y === this.height - 1) {
+      console.log("bottom", x, y);
+      return (this.maze[y][x] = dec2bin(value & parseInt(BOTTOM, 2)).padStart(
+        4,
+        "0"
+      ));
+    }
+    // this.maze[y][x] = "";
   };
 
   checkLeft = ({ x, y }) => {
@@ -83,7 +118,7 @@ class Maze {
     if (this.maze[y + 1][x] === UNVISITED) return true;
     return false;
   };
-  searchNextCell = async (pos) => {
+  searchNextCell = (pos) => {
     // console.log("searching next", pos);
     const { x, y } = pos;
     let nexts = [];
@@ -97,19 +132,34 @@ class Maze {
     if (this.checkBottom(pos))
       nexts.push({ x, y: y + 1, direction: BOTTOM, previous: TOP });
     // console.log(nexts);
-    this.nexts = nexts;
+    // this.nexts = nexts;
     // while (nexts.length) {
     // console.log("in while", nexts);
-    const next = sample(nexts);
-    nexts = removeItemOnce(nexts, next);
-    if (next) {
-      this.moveCell(next, pos);
-      this.searchNextCell({ x: next.x, y: next.y });
-      console.log("b");
-    } else return false;
+    // const next = sample(nexts);
+    // nexts = removeItemOnce(nexts, next);
+    // if (next) {
+    //   this.moveCell(next, pos);
+    //   this.searchNextCell({ x: next.x, y: next.y });
+    //   console.log("b");
+    // } else return false;
     // console.log(nexts);
     // }
     // console.log("ok", this.nexts);
+    return nexts;
+  };
+
+  solveMaze = (pos) => {
+    console.log("h");
+    let nexts = this.searchNextCell(pos);
+    console.log(nexts);
+    while (nexts.length) {
+      const next = sample(nexts);
+      this.moveCell(next, pos);
+      this.last = next;
+      this.solveMaze({ x: next.x, y: next.y });
+      nexts = this.searchNextCell({ x: pos.x, y: pos.y });
+    }
+    return [pos, nexts];
   };
 
   moveCell = (nextPos, { x, y }) => {

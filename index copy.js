@@ -125,3 +125,15 @@ start();
 const removeTable = () => {
   document.querySelector("table").remove();
 };
+
+solveMaze = (pos) => {
+  let nexts = this.searchNextCell(pos);
+  do {
+    const next = sample(nexts);
+    if (next) {
+      this.moveCell(next, pos);
+      this.solveMaze(pos);
+      nexts = this.searchNextCell({ x: next.x, y: next.y });
+    } else return false;
+  } while (nexts.length);
+};
