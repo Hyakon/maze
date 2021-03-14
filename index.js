@@ -1,16 +1,3 @@
-const table = document.querySelector("table");
-
-const dec2bin = (dec) => {
-  return (dec >>> 0).toString(2);
-};
-
-const sample = (array) => {
-  return array[Math.floor(Math.random() * array.length)];
-};
-const getRandomInt = (max) => {
-  return Math.floor(Math.random() * Math.floor(max));
-};
-
 const UNVISITED = "1111";
 const LEFT = "1110";
 const RIGHT = "1011";
@@ -34,9 +21,9 @@ class Maze {
 
     const startingPos = this.initPos();
 
-    this.openMaze(startingPos);
+    this.openCell(startingPos, TOP);
     this.solveMaze(startingPos);
-    this.finishMaze();
+    this.finishMaze(this.last);
     this.displayMaze();
   };
 
@@ -45,41 +32,52 @@ class Maze {
     return pos;
   };
 
-  finishMaze = () => {
-    this.openMaze(this.last);
+  getNumberOfWalls = ({ x, y }) => {
+    return (this.maze[y][x].match(/1/g) || []).length;
   };
 
-  openMaze = ({ x, y }) => {
-    let value = parseInt(this.maze[y][x], 2);
+  finishMaze = (pos) => {
+    this.openLastCell(pos);
+  };
 
-    if (x === 0)
-      return (this.maze[y][x] = dec2bin(value & parseInt(LEFT, 2)).padStart(
-        4,
-        "0"
-      ));
-    if (y === 0)
-      return (this.maze[y][x] = dec2bin(value & parseInt(TOP, 2)).padStart(
-        4,
-        "0"
-      ));
-    if (x === this.width - 1) {
-      console.log("right", x, y);
-      return (this.maze[y][x] = dec2bin(value & parseInt(RIGHT, 2)).padStart(
-        4,
-        "0"
-      ));
-    }
-    if (y === this.height - 1) {
-      console.log("bottom", x, y);
-      return (this.maze[y][x] = dec2bin(value & parseInt(BOTTOM, 2)).padStart(
-        4,
-        "0"
-      ));
-    }
+  chooseLastCell = (pos) => {
+    const exitCells = [];
+    this.maze.forEach((line, y) => {
+      let pos = { x: 0, y };
+      if (this.getNumberOfWalls(pos) === 3) exitCells.push({ ...pos });
+      pos.x = this.width - 1;
+      if (this.getNumberOfWalls(pos) === 3) exitCells.push({ ...pos });
+    });
+    this.maze[0].forEach((col, x) => {
+      if (x !== 0 && x !== this.width - 1) {
+        let pos = { x, y: 0 };
+        if (this.getNumberOfWalls(pos) === 3) exitCells.push({ ...pos });
+        pos.y = this.height - 1;
+        if (this.getNumberOfWalls(pos) === 3) exitCells.push({ ...pos });
+      }
+    });
+    const exitCell = sample(exitCells);
+    if (exitCell) return this.openLastCell(exitCell);
+    return this.openLastCell({
+      x: getRandomInt(this.width),
+      y: this.height - 1,
+    });
+  };
+
+  openLastCell = (pos) => {
+    console.log("last:", pos);
+    if (pos.x === 0) return this.openCell(pos, LEFT);
+    if (pos.y === 0) return this.openCell(pos, TOP);
+    if (pos.x === this.width - 1) return this.openCell(pos, RIGHT);
+    if (pos.y === this.height - 1) return this.openCell(pos, BOTTOM);
+    this.chooseLastCell(pos);
   };
 
   openCell = ({ x, y }, direction) => {
-    let value = parseInt(this.maze[y][x], 2);
+    const value = parseInt(this.maze[y][x], 2);
+    const directionInt = parseInt(direction, 2);
+
+    this.maze[y][x] = dec2bin(value & directionInt).padStart(4, "0");
   };
 
   checkLeft = ({ x, y }) => {
@@ -111,13 +109,33 @@ class Maze {
     const nextCells = [];
 
     if (this.checkLeft(currentPos))
-      nextCells.push({ x: x - 1, y, direction: LEFT, previous: RIGHT });
+      nextCells.push({
+        x: x - 1,
+        y,
+        direction: LEFT,
+        previousDirection: RIGHT,
+      });
     if (this.checkRight(currentPos))
-      nextCells.push({ x: x + 1, y, direction: RIGHT, previous: LEFT });
+      nextCells.push({
+        x: x + 1,
+        y,
+        direction: RIGHT,
+        previousDirection: LEFT,
+      });
     if (this.checkTop(currentPos))
-      nextCells.push({ x, y: y - 1, direction: TOP, previous: BOTTOM });
+      nextCells.push({
+        x,
+        y: y - 1,
+        direction: TOP,
+        previousDirection: BOTTOM,
+      });
     if (this.checkBottom(currentPos))
-      nextCells.push({ x, y: y + 1, direction: BOTTOM, previous: TOP });
+      nextCells.push({
+        x,
+        y: y + 1,
+        direction: BOTTOM,
+        previousDirection: TOP,
+      });
     return nextCells;
   };
 
@@ -133,20 +151,12 @@ class Maze {
     return [currentPos, nextCells];
   };
 
-  moveNextCell = (nextCell, { x, y }) => {
-    const currentValue = parseInt(this.maze[y][x], 2);
-    const nextValue = parseInt(this.maze[nextCell.y][nextCell.x], 2);
-    const previousDirection = parseInt(nextCell.previous, 2);
-    const nextDirection = parseInt(nextCell.direction, 2);
-
-    this.maze[y][x] = dec2bin(currentValue & nextDirection).padStart(4, "0");
-    this.maze[nextCell.y][nextCell.x] = dec2bin(
-      nextValue & previousDirection
-    ).padStart(4, "0");
+  moveNextCell = (nextCell, currentPos) => {
+    this.openCell(nextCell, nextCell.previousDirection);
+    this.openCell(currentPos, nextCell.direction);
   };
 
   displayMaze = () => {
-    document.querySelector("table")?.remove();
     const table = document.createElement("table");
     this.maze.forEach((row, y) => {
       const tr = document.createElement("tr");

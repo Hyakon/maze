@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="tools.js"></script>
+    <script src="index.js"></script>
+    <script>
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const width = urlParams.get("width");
+      const height = urlParams.get("height");
+      const maze = new Maze(+width, +height);
+    </script>
+  </body>
+</html>
