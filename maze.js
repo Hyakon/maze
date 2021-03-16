@@ -112,7 +112,6 @@ class Maze {
       this.solveMaze({ x: next.x, y: next.y });
       nextCells = this.searchNextCell({ x: currentPos.x, y: currentPos.y });
     }
-    return [currentPos, nextCells];
   };
 
   searchNextCell = (currentPos) => {
