@@ -86,7 +86,7 @@ class Maze {
   };
 
   checkRight = ({ x, y }) => {
-    if (x >= this.maze.length - 1) return false;
+    if (x >= this.maze[0].length - 1) return false;
     if (this.maze[y][x + 1] === UNVISITED) return true;
     return false;
   };
