@@ -11,11 +11,6 @@ class Maze {
     this.initMaze();
   }
 
-  generateMaze = () => {
-    const rows = new Array(this.height).fill("");
-    this.maze = rows.map((row) => new Array(this.width).fill(UNVISITED));
-  };
-
   initMaze = () => {
     this.generateMaze();
 
@@ -25,6 +20,11 @@ class Maze {
     this.solveMaze(startingPos);
     this.finishMaze(this.last);
     this.displayMaze();
+  };
+
+  generateMaze = () => {
+    const rows = new Array(this.height).fill("");
+    this.maze = rows.map((row) => new Array(this.width).fill(UNVISITED));
   };
 
   initPos = () => {
@@ -65,7 +65,6 @@ class Maze {
   };
 
   openLastCell = (pos) => {
-    console.log("last:", pos);
     if (pos.x === 0) return this.openCell(pos, LEFT);
     if (pos.y === 0) return this.openCell(pos, TOP);
     if (pos.x === this.width - 1) return this.openCell(pos, RIGHT);
@@ -104,6 +103,18 @@ class Maze {
     return false;
   };
 
+  solveMaze = (currentPos) => {
+    let nextCells = this.searchNextCell(currentPos);
+    while (nextCells.length) {
+      const next = sample(nextCells);
+      this.moveNextCell(next, currentPos);
+      this.last = next;
+      this.solveMaze({ x: next.x, y: next.y });
+      nextCells = this.searchNextCell({ x: currentPos.x, y: currentPos.y });
+    }
+    return [currentPos, nextCells];
+  };
+
   searchNextCell = (currentPos) => {
     const { x, y } = currentPos;
     const nextCells = [];
@@ -139,18 +150,6 @@ class Maze {
     return nextCells;
   };
 
-  solveMaze = (currentPos) => {
-    let nextCells = this.searchNextCell(currentPos);
-    while (nextCells.length) {
-      const next = sample(nextCells);
-      this.moveNextCell(next, currentPos);
-      this.last = next;
-      this.solveMaze({ x: next.x, y: next.y });
-      nextCells = this.searchNextCell({ x: currentPos.x, y: currentPos.y });
-    }
-    return [currentPos, nextCells];
-  };
-
   moveNextCell = (nextCell, currentPos) => {
     this.openCell(nextCell, nextCell.previousDirection);
     this.openCell(currentPos, nextCell.direction);
@@ -171,10 +170,9 @@ class Maze {
 
   createStyledCell = (value) => {
     const td = document.createElement("td");
-    const size = `${500 / Math.max(this.height, this.width)}px`;
+    const size = `${700 / Math.max(this.height, this.width)}px`;
     td.style.height = size;
     td.style.width = size;
-    if (value !== UNVISITED) td.style.background = "red";
     if (value[0] === "1") td.style.borderTop = "5px solid black";
     if (value[1] === "1") td.style.borderRight = "5px solid black";
     if (value[2] === "1") td.style.borderBottom = "5px solid black";
