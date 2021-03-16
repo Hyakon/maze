@@ -1,0 +1,22 @@
+{
+  "name": "perfect-maze",
+  "version": "1.0.0",
+  "description": "Generate a perfect maze in the browser",
+  "main": "index.html",
+  "scripts": {
+    "test": "yarn test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hyakon/maze.git"
+  },
+  "author": "Paul K.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hyakon/maze/issues"
+  },
+  "homepage": "https://github.com/Hyakon/maze#readme",
+  "devDependencies": {
+    "jest": "^26.6.3"
+  }
+}
