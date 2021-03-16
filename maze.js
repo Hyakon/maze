@@ -28,7 +28,7 @@ class Maze {
   };
 
   initPos = () => {
-    const pos = { x: getRandomInt(this.height), y: 0 };
+    const pos = { x: getRandomInt(this.width), y: 0 };
     return pos;
   };
 
@@ -104,6 +104,7 @@ class Maze {
   };
 
   solveMaze = (currentPos) => {
+    console.log(currentPos);
     let nextCells = this.searchNextCell(currentPos);
     while (nextCells.length) {
       const next = sample(nextCells);
