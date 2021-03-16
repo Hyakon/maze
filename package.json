@@ -4,7 +4,7 @@
   "description": "Generate a perfect maze in the browser",
   "main": "index.html",
   "scripts": {
-    "test": "yarn test"
+    "test": "yarn jest"
   },
   "repository": {
     "type": "git",

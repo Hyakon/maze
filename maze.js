@@ -104,7 +104,6 @@ class Maze {
   };
 
   solveMaze = (currentPos) => {
-    console.log(currentPos);
     let nextCells = this.searchNextCell(currentPos);
     while (nextCells.length) {
       const next = sample(nextCells);
