@@ -165,6 +165,15 @@ class Maze {
       table.appendChild(tr);
     });
     document.querySelector("body").append(table);
+    document.querySelectorAll("td").forEach((cell) => {
+      cell.addEventListener(
+        "click",
+        () => {
+          cell.classList.toggle("visited");
+        },
+        false
+      );
+    });
   };
 
   createStyledCell = (value) => {
